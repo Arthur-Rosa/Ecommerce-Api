@@ -19,8 +19,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.set("port", port);
-
 const router = require("./router/Router");
 app.use(router);
 app.listen(port, () => {
