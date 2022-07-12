@@ -21,6 +21,7 @@ app.use((req, res, next) => {
 
 const router = require("./router/Router");
 app.use(router);
+
 app.listen(port, () => {
   console.log("Rodando na porta 5000");
 });
