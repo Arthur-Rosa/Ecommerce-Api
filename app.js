@@ -19,6 +19,13 @@ app.use((req, res, next) => {
   next();
 });
 
+/* 
+    {
+    credentials: true,
+    origin: "http://local"
+  }
+*/
+
 const router = require("./router/Router");
 app.use(router);
 

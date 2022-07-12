@@ -68,11 +68,9 @@ const seeAllUsers = async (req, res) => {
   });
 };
 
-const seeUser = async (req, res) => {};
-
-const login = async (req, res) => {
-  const { email, password } = req.body;
-  const user = User.findOne({ email });
+const seeUser = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
 
   if (!user) {
     res.status(404).json({
@@ -81,8 +79,38 @@ const login = async (req, res) => {
     return;
   }
 
-  console.log("hash : " + user.password);
-  console.log("senha : " + password);
+  res.status(201).json({
+    user,
+  });
+};
+
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    res.status(404).json({
+      msg: "usuário não encontrado",
+    });
+    return;
+  }
+
+  res.status(201).json({
+    msg: "usuário deletado com sucesso",
+  });
+};
+
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(404).json({
+      msg: "usuário não encontrado",
+    });
+    return;
+  }
 
   if (!(await bcrypt.compare(password, user.password))) {
     res.status(400).json({
@@ -104,4 +132,6 @@ module.exports = {
   login,
   createUser,
   seeAllUsers,
+  seeUser,
+  deleteUser,
 };
