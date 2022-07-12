@@ -53,6 +53,53 @@ const createUser = async (req, res) => {
     token: createToken(newUser.id),
   });
 };
+
+const seeAllUsers = async (req, res) => {
+  const users = await User.find().select("-password");
+
+  if (!users) {
+    res.status(422).json({
+      msg: "Não foi possível encontrar usuários",
+    });
+  }
+
+  res.status(201).json({
+    users,
+  });
+};
+
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  const user = User.findOne({ email });
+
+  if (!user) {
+    res.status(404).json({
+      msg: "usuário não encontrado",
+    });
+    return;
+  }
+
+  console.log("hash : " + user.password);
+  console.log("senha : " + password);
+
+  if (!(await bcrypt.compare(password, user.password))) {
+    res.status(400).json({
+      msg: "Email ou senha Incorreta",
+    });
+    return;
+  }
+
+  var token = jwt.sign({ id: user.id }, process.env.secret, {
+    expiresIn: "7d",
+  });
+
+  res.status(201).json({
+    token,
+  });
+};
+
 module.exports = {
+  login,
   createUser,
+  seeAllUsers,
 };
