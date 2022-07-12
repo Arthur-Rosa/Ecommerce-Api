@@ -68,6 +68,8 @@ const seeAllUsers = async (req, res) => {
   });
 };
 
+const seeUser = async (req, res) => {};
+
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = User.findOne({ email });
