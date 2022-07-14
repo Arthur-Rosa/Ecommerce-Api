@@ -9,6 +9,7 @@ const authGuard = async (req, res, next) => {
     res.status(401).json({
       msg: "Acesso Negado",
     });
+    return;
   }
 
   try {
@@ -20,6 +21,7 @@ const authGuard = async (req, res, next) => {
     res.status(401).json({
       msg: "Token Inválido",
     });
+    return;
   }
 };
 

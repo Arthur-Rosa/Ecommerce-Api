@@ -128,10 +128,33 @@ const login = async (req, res) => {
   });
 };
 
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { name, email } = req.body;
+
+  const user = await User.findById(id).select("-password");
+
+  if (!user) {
+    res.status(404).json({
+      msg: "Usuário não encontrado",
+    });
+  }
+
+  const userUpdate = await User.findByIdAndUpdate(id, {
+    name: name,
+    email: email,
+  });
+
+  res.status(201).json({
+    msg: "Usuário atualizado com Sucesso",
+  });
+};
+
 module.exports = {
   login,
   createUser,
   seeAllUsers,
   seeUser,
   deleteUser,
+  updateUser,
 };
