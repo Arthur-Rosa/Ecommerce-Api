@@ -2,14 +2,14 @@
   "name": "api-node",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "server.js",
   "engines": {
     "node": "12.11.1",
     "npm": "6.14.8"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "nodemon ./app.js"
+    "server": "nodemon ./server.js"
   },
   "author": "",
   "license": "ISC",
