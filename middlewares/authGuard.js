@@ -6,10 +6,7 @@ const authGuard = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) {
-    res.status(401).json({
-      msg: "Acesso Negado",
-    });
-    return;
+    return res.status(401).json({ msg: "Acesso Negado" });
   }
 
   try {
@@ -18,10 +15,7 @@ const authGuard = async (req, res, next) => {
     next();
   } catch (e) {
     console.log(e);
-    res.status(401).json({
-      msg: "Token Inválido",
-    });
-    return;
+    return res.status(401).json({ msg: "Token Inválido" });
   }
 };
 

@@ -5,9 +5,17 @@ const port = process.env.PORT || "3000";
 const app = express();
 
 const cors = require("cors");
-app.use(express.json());
 require("./config/dbConfig");
 
+app.use(cors());
+app.use(express.json());
+const router = require("./router/Router");
+app.use(router);
+app.listen(port, () => {
+  console.log("Rodando na porta 5000");
+});
+
+/* 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
@@ -17,18 +25,5 @@ app.use((req, res, next) => {
   );
   app.use(cors());
   next();
-});
-
-/* 
-    {
-    credentials: true,
-    origin: "http://local"
-  }
+}); 
 */
-
-const router = require("./router/Router");
-app.use(router);
-
-app.listen(port, () => {
-  console.log("Rodando na porta 5000");
-});

@@ -1,153 +1,158 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-
-const { default: mongoose, mongo } = require("mongoose");
-
 const secret = process.env.SECRET;
 
 const createToken = (id) => {
-  return jwt.sign(
-    {
-      id,
-    },
-    secret,
-    {
-      expiresIn: "7d",
-    }
-  );
+  return jwt.sign({ id }, secret, { expiresIn: "7d" });
 };
 
 const createUser = async (req, res) => {
   const { name, password, email } = req.body;
 
-  const user = await User.findOne({
-    email,
-  });
-
-  if (user) {
-    res.status(422).json({
-      msg: "E-mail já existente",
-    });
-    return;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      return res.status(422).json({ msg: "E-mail já existente" });
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ err: e });
   }
 
   const salt = await bcrypt.genSalt();
   const passwordHash = await bcrypt.hash(password, salt);
 
-  const newUser = await User.create({
-    name,
-    email,
-    password: passwordHash,
-  });
-
-  if (!newUser) {
-    res.status(422).json({
-      msg: "Não foi possível Criar Usuario",
+  try {
+    const newUser = await User.create({
+      name,
+      email,
+      password: passwordHash,
     });
-    return;
+
+    if (!newUser) {
+      return res.status(422).json({ msg: "Não foi possível Criar Usuario" });
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ err: e });
   }
 
-  res.status(201).json({
+  return res.status(201).json({
     _id: newUser.id,
     token: createToken(newUser.id),
   });
 };
 
 const seeAllUsers = async (req, res) => {
-  const users = await User.find().select("-password");
+  try {
+    const users = await User.find().select("-password");
 
-  if (!users) {
-    res.status(422).json({
-      msg: "Não foi possível encontrar usuários",
-    });
+    if (!users) {
+      return res.status(404).json({
+        msg: "Não foi possível encontrar usuários",
+      });
+    }
+
+    return res.status(201).json({ users });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ err: e });
   }
-
-  res.status(201).json({
-    users,
-  });
 };
 
 const seeUser = async (req, res) => {
   const { id } = req.params;
-  const user = await User.findById(id);
 
-  if (!user) {
-    res.status(404).json({
-      msg: "usuário não encontrado",
-    });
-    return;
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        msg: "usuário não encontrado",
+      });
+    }
+
+    return res.status(201).json({ user });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ err: e });
   }
-
-  res.status(201).json({
-    user,
-  });
 };
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;
 
-  const user = await User.findById(id);
+  try {
+    const user = await User.findById(id);
 
-  if (!user) {
-    res.status(404).json({
-      msg: "usuário não encontrado",
-    });
-    return;
+    if (!user) {
+      return res.status(404).json({
+        msg: "Usuário não encontrado",
+      });
+    }
+
+    return res.status(201).json({ msg: "Usuário deletado com sucesso" });
+  } catch (e) {
+    return res.status(500).json({ err: e });
   }
-
-  res.status(201).json({
-    msg: "usuário deletado com sucesso",
-  });
 };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
 
-  if (!user) {
-    res.status(404).json({
-      msg: "usuário não encontrado",
-    });
-    return;
+  if (!email || !password) {
+    return res.status(400).json({ error: "sem dados" });
   }
 
-  if (!(await bcrypt.compare(password, user.password))) {
-    res.status(400).json({
-      msg: "Email ou senha Incorreta",
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        msg: "Usuário não encontrado",
+      });
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({
+        msg: "Email ou senha Incorreta",
+      });
+    }
+
+    var token = jwt.sign({ id: user.id }, process.env.secret, {
+      expiresIn: "7d",
     });
-    return;
+
+    return res.status(201).json({ token });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ err: e });
   }
-
-  var token = jwt.sign({ id: user.id }, process.env.secret, {
-    expiresIn: "7d",
-  });
-
-  res.status(201).json({
-    token,
-  });
 };
 
 const updateUser = async (req, res) => {
   const { id } = req.params;
   const { name, email } = req.body;
 
-  const user = await User.findById(id).select("-password");
+  try {
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res.status(404).json({ msg: "Usuário não encontrado" });
+    }
 
-  if (!user) {
-    res.status(404).json({
-      msg: "Usuário não encontrado",
+    await User.findByIdAndUpdate(id, {
+      name: name,
+      email: email,
     });
+
+    return res.status(201).json({
+      msg: "Usuário atualizado com Sucesso",
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ err: e });
   }
-
-  const userUpdate = await User.findByIdAndUpdate(id, {
-    name: name,
-    email: email,
-  });
-
-  res.status(201).json({
-    msg: "Usuário atualizado com Sucesso",
-  });
 };
 
 module.exports = {

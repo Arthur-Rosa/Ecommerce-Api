@@ -4,7 +4,7 @@ const router = express();
 router.use("/shop/users", require("./UserRoutes"));
 
 router.get("/", (req, res) => {
-  res.send("funcionou !");
+  res.send("started");
 });
 
 module.exports = router;
