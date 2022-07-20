@@ -1,6 +1,6 @@
 const { body } = require("express-validator");
 
-const userValidation = () => {
+const userCreateValidation = () => {
   return [
     body("name")
       .isString()
@@ -33,6 +33,31 @@ const userValidation = () => {
   ];
 };
 
+const userLoginValidation = () => {
+  return [
+    body("email")
+      .isString()
+      .withMessage("o Email é obrigatório")
+      .isEmail()
+      .withMessage("Email precisa ser válido"),
+    body("password").isString().withMessage("a Senha é obrigatória"),
+  ];
+};
+
+const userUpdateValidation = () => {
+  return [
+    body("name").isString().withMessage("o Nome é obrigatório"),
+    body("email")
+      .isString()
+      .withMessage("o Email é obrigatório")
+      .isEmail()
+      .withMessage("Email precisa ser válido"),
+    body("password").isString().withMessage("a Senha é obrigatória"),
+  ];
+};
+
 module.exports = {
-  userValidation,
+  userCreateValidation,
+  userLoginValidation,
+  userUpdateValidation,
 };

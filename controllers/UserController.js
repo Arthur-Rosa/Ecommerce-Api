@@ -83,13 +83,21 @@ const seeUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   const { id } = req.params;
 
+  if (id === "") {
+    return res.status(404).json({ msg: "Id Inválido" });
+  }
+
   try {
     const user = await User.findById(id);
 
     if (!user) {
-      return res.status(404).json({
-        msg: "Usuário não encontrado",
-      });
+      return res.status(404).json({ msg: "Usuário não encontrado" });
+    }
+
+    const userDeleted = await User.deleteById(id);
+
+    if (!userDeleted) {
+      return res.status(404).json({ msg: "Ocorreu um erro " });
     }
 
     return res.status(201).json({ msg: "Usuário deletado com sucesso" });
